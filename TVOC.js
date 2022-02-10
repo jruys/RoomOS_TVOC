@@ -29,5 +29,5 @@ function postStatusCall(amount) {
    }
 }
 
-// Get dynamic PEOPLE COUNT STATUS updates
+// Get dynamic AIRQUALITY STATUS updates
 xapi.status.on('Peripherals ConnectedDevice 1002 RoomAnalytics AirQuality Index', (airquality) => postStatusCall(airquality));
