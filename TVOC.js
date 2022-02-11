@@ -6,10 +6,30 @@ import xapi from 'xapi';
 // v0.2       Changed text display method
 // v0.3       Moved maxPeople display to alert header
 // v0.4       Changed to trigger on TVOC
+// v0.5       Added menu button and info panel
 
-const maxTVOC = 2
-const alertDuration = 30
-console.log('Debug: init - maxTVOC = '+maxTVOC);
+const poorTVOC = 3;
+const badTVOC = 4;
+const alertDuration = 30;
+var poorAlert = false;
+var badAlert = false;
+
+console.log('DEBUG - Init' );
+
+// Covert TVOC value to good/poor/bad
+function goodBad(value) {
+  if (value >= poorTVOC) {
+    if (value >= badTVOC) {
+      return('bad');
+    }
+    else {
+      return('poor');
+    }
+  }
+  else {
+    return('good');
+  }
+}
 
 // display text on screen - can also be replaced by play-message, show-image, call-security etc
 function displayTextOnScreen(header,text) {
@@ -20,14 +40,42 @@ function displayTextOnScreen(header,text) {
   });
 }
 
-// Process updated STATUS data
+// Process updated status data
 function postStatusCall(amount) {
-   console.log('DEBUG - Detected: ' + amount + ', max: ' + maxTVOC);
-   if (amount > maxTVOC) {
-       console.log('DEBUG - Alerting');
-       displayTextOnScreen("Current TVOC " + amount + " is above " + maxTVOC, ". Please ventilate this room." )
-   }
+  console.log('DEBUG - Detected: ' + amount );
+  xapi.command('UserInterface Extensions Panel Update', {PanelId: 'TVOC', Name: 'TVOC: ' + goodBad(amount) });
+  xapi.command('UserInterface Extensions Widget SetValue', {WidgetId: 'TVOC_value', Value: 'Air quality is ' + goodBad(amount) + ', TVOC value is ' + amount });
+  if (amount >= poorTVOC) {
+    if (amount >= badTVOC) {
+      if ( badAlert == false ) {
+        console.log('DEBUG - BAD alert');
+        displayTextOnScreen("ALERT: bad air quality", "Please ventilate and leave this room<br>(TVOC " + amount + ")" );
+//      xapi.command('UserInterface Extensions Panel Update', {PanelId: 'TVOC', Color: 'Red'});
+        poorAlert = true;
+        badAlert = true;
+      }
+    }
+    else if ( ( poorAlert == false ) && ( badAlert == false ) ) {
+      console.log('DEBUG - POOR warning');
+      displayTextOnScreen("WARNING: poor air quality", "Please ventilate this room<br>(TVOC " + amount + ")" ); 
+//    xapi.command('UserInterface Extensions Panel Update', {PanelId: 'TVOC', Color: 'Yellow'});
+      poorAlert = true;
+      badAlert = false;
+    }
+  }
+  else if ( poorAlert == true ) {
+    console.log('DEBUG - OK notification');
+    displayTextOnScreen("Air quality OK", "Healthy air quality restored<br>(TVOC " + amount + ")" );  
+//  xapi.command('UserInterface Extensions Panel Update', {PanelId: 'TVOC', Color: 'Green'});
+    poorAlert = false;
+    badAlert = false;
+  }
 }
 
-// Get dynamic AIRQUALITY STATUS updates
+// Get startup Air Quality value
+xapi.Status.Peripherals.ConnectedDevice[1002].RoomAnalytics.AirQuality.Index.get().then((airquality) => {
+  postStatusCall(airquality);
+});
+
+// Get dynamic Air Quality status updates
 xapi.status.on('Peripherals ConnectedDevice 1002 RoomAnalytics AirQuality Index', (airquality) => postStatusCall(airquality));

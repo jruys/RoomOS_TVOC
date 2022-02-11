@@ -1,0 +1,25 @@
+<Extensions>
+  <Version>1.8</Version>
+  <Panel>
+    <Order>4</Order>
+    <PanelId>TVOC</PanelId>
+    <Origin>local</Origin>
+    <Type>Home</Type>
+    <Icon>Info</Icon>
+    <Name>TVOC: n/a</Name>
+    <ActivityType>Custom</ActivityType>
+    <Page>
+      <Name>Room Air Quality Information</Name>
+      <Row>
+        <Name>Row</Name>
+        <Widget>
+          <WidgetId>TVOC_value</WidgetId>
+          <Name/>
+          <Type>Text</Type>
+          <Options>size=4;fontSize=normal;align=center</Options>
+        </Widget>
+      </Row>
+      <Options>hideRowNames=1</Options>
+    </Page>
+  </Panel>
+</Extensions>
