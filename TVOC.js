@@ -43,7 +43,7 @@ function displayTextOnScreen(header,text) {
 // Process updated status data
 function postStatusCall(amount) {
   console.log('DEBUG - Detected: ' + amount );
-  xapi.command('UserInterface Extensions Panel Update', {PanelId: 'TVOC', Name: 'TVOC: ' + goodBad(amount) });
+  xapi.command('UserInterface Extensions Panel Update', {PanelId: 'TVOC', Name: 'Air: ' + goodBad(amount) });
   xapi.command('UserInterface Extensions Widget SetValue', {WidgetId: 'TVOC_value', Value: 'Air quality is ' + goodBad(amount) + ', TVOC value is ' + amount });
   if (amount >= poorTVOC) {
     if (amount >= badTVOC) {
